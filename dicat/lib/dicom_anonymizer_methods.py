@@ -94,16 +94,22 @@ def grep_dicoms_from_folder(dicom_folder):
     # Same for subdirectories
     # Regular expression to identify files that are not DICOM.
     pattern = re.compile(
-        "\.bmp$|\.png$|\.zip$|\.txt$|\.jpeg$|\.pdf$|\.DS_Store")
+        "\.bmp$|\.png$|\.zip$|\.txt$|\.jpeg$|\.pdf$|\.DS_Store$|\.blo$|\.idx$|\.gz$|\.fix$|\.htm$|\.sif$|\.bag$|\.xml$|\.bat$|\.inf$")
+    files_found = False
     for root, subdirs, files in os.walk(dicom_folder, topdown=True):
+        #print(len(files), len(subdirs))
         if len(files) != 0 or len(subdirs) != 0:
             for dicom_file in files:
                 if pattern.search(dicom_file) is None:
                     dicoms_list.append(os.path.join(root, dicom_file))
-            for subdir in subdirs:
-                subdirs_list.append(subdir)
-        else:
-            sys.exit('Could not find any files in ' + dicom_folder)
+                    rel_path = os.path.relpath(root, dicom_folder)
+                    files_found = True
+                    if (rel_path not in subdirs_list):
+                        subdirs_list.append(rel_path)
+                        print(rel_path)
+    
+    if not files_found:
+        sys.exit('Could not find any files in ' + dicom_folder)
 
     return dicoms_list, subdirs_list
 
@@ -150,6 +156,7 @@ def grep_dicom_values(dicom_folder, dicom_fields):
     (dicoms_list, subdirs_list) = grep_dicoms_from_folder(dicom_folder)
     dicom_file = dicoms_list[0]
 
+    #print(dicoms_list[0])
     # Read DICOM file using PyDICOM
     if (use_pydicom):
         (dicom_fields) = read_dicom_with_pydicom(dicom_file, dicom_fields)
@@ -175,7 +182,7 @@ def read_dicom_with_pydicom(dicom_file, dicom_fields):
 
     # Read DICOM file
     dicom_dataset = dicom.read_file(dicom_file)
-
+    #print(dicom_dataset)
     # Grep information from DICOM header and store them
     # into dicom_fields dictionary under flag Value
     # Dictionnary of DICOM values to be returned
@@ -183,6 +190,7 @@ def read_dicom_with_pydicom(dicom_file, dicom_fields):
         try:
             description = dicom_fields[name]['Description']
             value = dicom_dataset.data_element(description).value
+            #print(description)
             dicom_fields[name]['Value'] = value
         except:
             continue
@@ -291,6 +299,9 @@ def pydicom_zapping(dicom_file, dicom_fields):
 
     """
 
+    # make sure you can overwrite the file
+    os.chmod(dicom_file, 0o755)
+    
     dicom_dataset = dicom.read_file(dicom_file)
 
     for name in dicom_fields:
@@ -415,19 +426,24 @@ def create_directories(dicom_folder, dicom_fields, subdirs_list):
     original_dir = dicom_folder + os.path.sep
     deidentified_dir = dicom_folder + os.path.sep
     # if PatientName is set, include PatientName in the directory name
+    #print(dicom_fields)
+    
     if dicom_fields['0010,0010']['Value']:
         original_dir     += dicom_fields['0010,0010']['Value'] + '_'
         deidentified_dir += dicom_fields['0010,0010']['Value'] + '_'
     # append _original or _deidentified str to the folder names
     original_dir     +=  "original_DICOMs"
     deidentified_dir +=  "deidentified_DICOMs"
-    os.mkdir(original_dir, 0755)
-    os.mkdir(deidentified_dir, 0755)
+    
+    os.mkdir(original_dir, mode=0o755)
+        
+    #os.mkdir(original_dir, 0755)
+    os.mkdir(deidentified_dir, mode=0o755)
     # Create subdirectories in original and de-identified directory, as found in
     # DICOM folder
     for subdir in subdirs_list:
-        os.mkdir(original_dir + os.path.sep + subdir, 0755)
-        os.mkdir(deidentified_dir + os.path.sep + subdir, 0755)
+        os.makedirs(os.path.join(original_dir, subdir), mode=0o755, exist_ok=True)
+        os.makedirs(os.path.join(deidentified_dir, subdir), mode=0o755, exist_ok=True)
 
     return original_dir, deidentified_dir
 

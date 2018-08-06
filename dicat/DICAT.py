@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-import ttk
-from Tkinter import *
+#from tkinter import *
+import tkinter
+from tkinter import ttk
 
 from dicom_anonymizer_frame import dicom_deidentifier_frame_gui
 from IDMapper import IDMapper_frame_gui
@@ -12,14 +13,14 @@ class DicAT_application():
     # Constructor of the class DicAT called with a parent widget ("master")
     # to which we will add a number of child widgets. The constructor starts
     # by creating a "Frame" widget. A frame is a simple container.
-    def __init__(self, master, side=LEFT):
+    def __init__(self, master, side=tkinter.LEFT):
 
         self.dir_opt = {}
 
         # Title of the application
         master.title("DICAT")
 
-        # Use notebook (nb) from ttk from Tkinter to create tabs
+        # Use notebook (nb) from ttk from tkinter to create tabs
         self.nb = ttk.Notebook(master)
 
         # Add frames as pages for ttk.Notebook
@@ -70,11 +71,11 @@ class DicAT_application():
 if __name__ == "__main__":
 
     # Create a Tk root widget.
-    root = Tk()
+    root = tkinter.Tk()
 
     app = DicAT_application(root)
 
-    # The window won't appear until we've entered the Tkinter event loop.
+    # The window won't appear until we've entered the tkinter event loop.
     # The program will stay in the event loop until we close the window.
     root.mainloop()
 

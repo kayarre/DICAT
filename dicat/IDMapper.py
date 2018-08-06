@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
-import Tkinter, Tkconstants, tkFileDialog, tkMessageBox, re, datetime
-from Tkinter import *
+from tkinter import constants, filedialog, messagebox
+import re, datetime
+import tkinter
 from xml.dom import minidom
 
 
-import ttk
+from tkinter import ttk
 
 def sortby(tree, col, descending):
     """Sort tree contents when a column is clicked on."""
@@ -23,7 +24,7 @@ def sortby(tree, col, descending):
         command=lambda col=col: sortby(tree, col, int(not descending)))
 
   
-class IDMapper_frame_gui(Frame):
+class IDMapper_frame_gui(tkinter.Frame):
     
     def __init__(self, parent):
         """Initialize the application"""
@@ -39,7 +40,7 @@ class IDMapper_frame_gui(Frame):
     def initialize(self):
 
         # initialize Frame
-        self.frame = Frame(self.parent)
+        self.frame = tkinter.Frame(self.parent)
         self.frame.pack(expand=1, fill='both')
         self.frame.columnconfigure(0, weight=1)
         self.frame.columnconfigure(1, weight=1)
@@ -48,26 +49,26 @@ class IDMapper_frame_gui(Frame):
 
         # select an existing candidate.xml file
         # Initialize default text that will be in self.entry
-        self.entryVariable = Tkinter.StringVar()
+        self.entryVariable = tkinter.StringVar()
         self.entryVariable.set("Open an XML file with candidate's key")
 
         # Create an entry with a default text that will be replaced by the path
         # to the XML file once directory selected
-        self.entry = Entry(self.frame,
+        self.entry = tkinter.Entry(self.frame,
                            width=40,
                            textvariable=self.entryVariable
                           )
         self.entry.focus_set()
-        self.entry.selection_range(0, Tkinter.END)
+        self.entry.selection_range(0, tkinter.END)
 
         # Create an open button to use to select an XML file with candidate's
         # key info
-        self.buttonOpen = Button(self.frame,
+        self.buttonOpen = tkinter.Button(self.frame,
                                  text=u"Open an existing file",
                                  command=self.openfilename
                                 )
 
-        self.buttonCreate = Button(self.frame,
+        self.buttonCreate = tkinter.Button(self.frame,
                                    text=u"Create a new file",
                                    command=self.createfilename
                                   )
@@ -76,15 +77,15 @@ class IDMapper_frame_gui(Frame):
                                column=0,
                                padx=(0, 15),
                                pady=10,
-                               sticky=E + W
+                               sticky=tkinter.E + tkinter.W
                               )
         self.buttonOpen.grid(row=0,
                              column=1,
                              padx=(0, 15),
                              pady=10,
-                             sticky=E + W
+                             sticky=tkinter.E + tkinter.W
                             )
-        self.entry.grid(row=0, column=2, padx=15, pady=10, sticky=E + W)
+        self.entry.grid(row=0, column=2, padx=15, pady=10, sticky=tkinter.E + tkinter.W)
 
         self.InitUI()
 
@@ -92,7 +93,7 @@ class IDMapper_frame_gui(Frame):
 
     def InitUI(self):
         
-        self.frame = Frame(self.parent)
+        self.frame = tkinter.Frame(self.parent)
         self.frame.pack(expand=1, fill='both')
 
         for i in range(0, 3):
@@ -102,42 +103,42 @@ class IDMapper_frame_gui(Frame):
         for i in range(3, 4):
             self.frame.rowconfigure(i, weight=1)
 
-        self.labelID   = Label(self.frame, text=u'Identifier')
-        self.labelName = Label(self.frame, text=u'Real Name')
-        self.labelDoB  = Label(self.frame, text=u'Date of Birth (YYYY-MM-DD)')
+        self.labelID   = tkinter.Label(self.frame, text=u'Identifier')
+        self.labelName = tkinter.Label(self.frame, text=u'Real Name')
+        self.labelDoB  = tkinter.Label(self.frame, text=u'Date of Birth (YYYY-MM-DD)')
 
-        self.buttonAdd    = Button(self.frame, width=12,
+        self.buttonAdd    = tkinter.Button(self.frame, width=12,
                                    text=u'Add candidate',
                                    command=self.AddIdentifierEvent
                                   )
-        self.buttonClear  = Button(self.frame, width=12,
+        self.buttonClear  = tkinter.Button(self.frame, width=12,
                                    text=u'Clear fields',
                                    command=self.clear
                                   )
-        self.buttonSearch = Button(self.frame, width=12,
+        self.buttonSearch = tkinter.Button(self.frame, width=12,
                                    text=u'Search candidate',
                                    command=self.search
                                   )
-        self.buttonEdit   = Button(self.frame, width=12,
+        self.buttonEdit   = tkinter.Button(self.frame, width=12,
                                    text=u'Edit candidate',
                                    command=self.edit
                                   )
 
-        self.textCandId  = StringVar()
-        self.candidateid = Entry(self.frame,
+        self.textCandId  = tkinter.StringVar()
+        self.candidateid = tkinter.Entry(self.frame,
                                  textvariable=self.textCandId,
                                  width=20
                                 )
         self.candidateid.focus_set()
 
-        self.textCandName  = StringVar()
-        self.candidatename = Entry(self.frame,
+        self.textCandName  = tkinter.StringVar()
+        self.candidatename = tkinter.Entry(self.frame,
                                    textvariable=self.textCandName,
                                    width=20
                                   )
 
-        self.textCandDoB  = StringVar()
-        self.candidateDoB = Entry(self.frame,
+        self.textCandDoB  = tkinter.StringVar()
+        self.candidateDoB = tkinter.Entry(self.frame,
                                   textvariable=self.textCandDoB,
                                   width=20
                                  )
@@ -153,21 +154,21 @@ class IDMapper_frame_gui(Frame):
 
         self.datatable.bind("<<TreeviewSelect>>", self.OnRowClick)
       
-        self.ErrorMessage = StringVar()
-        self.error = Label(self.frame, textvariable=self.ErrorMessage, fg='red')
+        self.ErrorMessage = tkinter.StringVar()
+        self.error = tkinter.Label(self.frame, textvariable=self.ErrorMessage, fg='red')
 
-        self.labelID.grid(row=0, column=0, padx=(0,4), sticky=E+W)
-        self.labelName.grid(row=0, column=1, padx=(4,4), sticky=E+W)
-        self.labelDoB.grid(row=0, column=2, padx=(4,4), sticky=E+W)
+        self.labelID.grid(row=0, column=0, padx=(0,4), sticky=tkinter.E+tkinter.W)
+        self.labelName.grid(row=0, column=1, padx=(4,4), sticky=tkinter.E+tkinter.W)
+        self.labelDoB.grid(row=0, column=2, padx=(4,4), sticky=tkinter.E+tkinter.W)
 
-        self.candidateid.grid(row=1, column=0, padx=(0,4), pady=(0,10), sticky=E+W)
-        self.candidatename.grid(row=1, column=1, padx=(4,4), pady=(0,10), sticky=E+W)
-        self.candidateDoB.grid(row=1, column=2, padx=(4,4), pady=(0,10), sticky=E+W)
+        self.candidateid.grid(row=1, column=0, padx=(0,4), pady=(0,10), sticky=tkinter.E+tkinter.W)
+        self.candidatename.grid(row=1, column=1, padx=(4,4), pady=(0,10), sticky=tkinter.E+tkinter.W)
+        self.candidateDoB.grid(row=1, column=2, padx=(4,4), pady=(0,10), sticky=tkinter.E+tkinter.W)
  
-        self.buttonAdd.grid(row=2, column=1, padx=(4,0), sticky=E+W)
-        self.buttonClear.grid(row=1, column=3, padx=(4,0), sticky=E+W)
-        self.buttonSearch.grid(row=2, column=0, padx=(4,0), sticky=E+W)
-        self.buttonEdit.grid(row=2, column=2, padx=(4,0), sticky=E+W)
+        self.buttonAdd.grid(row=2, column=1, padx=(4,0), sticky=tkinter.E+tkinter.W)
+        self.buttonClear.grid(row=1, column=3, padx=(4,0), sticky=tkinter.E+tkinter.W)
+        self.buttonSearch.grid(row=2, column=0, padx=(4,0), sticky=tkinter.E+tkinter.W)
+        self.buttonEdit.grid(row=2, column=2, padx=(4,0), sticky=tkinter.E+tkinter.W)
 
         self.datatable.grid(row=3, column=0, columnspan=3, pady=10, sticky='nsew')
         self.error.grid(row=3, column=3)
@@ -395,7 +396,7 @@ class IDMapper_frame_gui(Frame):
 
 def main():
        
-    root = Tk()
+    root = tkinter.Tk()
     app = IDMapper_frame_gui(root)
     root.mainloop()
  
